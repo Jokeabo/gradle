@@ -29,7 +29,6 @@ import org.gradle.api.internal.artifacts.ConfigurationResolver;
 import org.gradle.api.internal.artifacts.DefaultResolverResults;
 import org.gradle.api.internal.artifacts.GlobalDependencyResolutionRules;
 import org.gradle.api.internal.artifacts.ImmutableModuleIdentifierFactory;
-import org.gradle.api.internal.artifacts.RepositoriesSupplier;
 import org.gradle.api.internal.artifacts.ResolveContext;
 import org.gradle.api.internal.artifacts.ResolveExceptionContextualizer;
 import org.gradle.api.internal.artifacts.ResolverResults;
@@ -78,7 +77,6 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
 import org.gradle.cache.internal.BinaryStore;
 import org.gradle.cache.internal.Store;
-import org.gradle.internal.Cast;
 import org.gradle.internal.component.model.DependencyMetadata;
 import org.gradle.internal.locking.DependencyLockingGraphVisitor;
 import org.gradle.internal.model.CalculatedValueContainerFactory;
@@ -94,7 +92,6 @@ public class DefaultConfigurationResolver implements ConfigurationResolver {
     private static final Spec<DependencyMetadata> IS_LOCAL_EDGE = element -> element.getSelector() instanceof ProjectComponentSelector;
     private final ComponentResolversFactory componentResolversFactory;
     private final DependencyGraphResolver dependencyGraphResolver;
-    private final RepositoriesSupplier repositoriesSupplier;
     private final GlobalDependencyResolutionRules metadataHandler;
     private final ResolutionResultsStoreFactory storeFactory;
     private final boolean buildProjectDependencies;
@@ -119,7 +116,6 @@ public class DefaultConfigurationResolver implements ConfigurationResolver {
     public DefaultConfigurationResolver(
         ComponentResolversFactory componentResolversFactory,
         DependencyGraphResolver dependencyGraphResolver,
-        RepositoriesSupplier repositoriesSupplier,
         GlobalDependencyResolutionRules metadataHandler,
         ResolutionResultsStoreFactory storeFactory,
         boolean buildProjectDependencies,
@@ -142,7 +138,6 @@ public class DefaultConfigurationResolver implements ConfigurationResolver {
     ) {
         this.componentResolversFactory = componentResolversFactory;
         this.dependencyGraphResolver = dependencyGraphResolver;
-        this.repositoriesSupplier = repositoriesSupplier;
         this.metadataHandler = metadataHandler;
         this.storeFactory = storeFactory;
         this.buildProjectDependencies = buildProjectDependencies;
@@ -195,7 +190,7 @@ public class DefaultConfigurationResolver implements ConfigurationResolver {
     }
 
     @Override
-    public ResolverResults resolveGraph(ResolveContext resolveContext) {
+    public ResolverResults resolveGraph(ResolveContext resolveContext, List<? extends ResolutionAwareRepository> repositories) {
         StoreSet stores = storeFactory.createStoreSet();
 
         BinaryStore oldModelStore = stores.nextBinaryStore();
@@ -237,7 +232,7 @@ public class DefaultConfigurationResolver implements ConfigurationResolver {
             resolutionStrategy.confirmUnlockedConfigurationResolved(resolveContext.getName());
         }
 
-        ComponentResolvers resolvers = componentResolversFactory.create(resolveContext, getRepositories(), consumerSchema);
+        ComponentResolvers resolvers = componentResolversFactory.create(resolveContext, repositories, consumerSchema);
 
         List<DependencyArtifactsVisitor> artifactVisitors = ImmutableList.of(oldModelVisitor, fileDependencyVisitor, artifactsBuilder);
         graphVisitors.add(new ResolvedArtifactsGraphVisitor(
@@ -298,10 +293,5 @@ public class DefaultConfigurationResolver implements ConfigurationResolver {
             new DefaultResolvedConfiguration(lenientConfiguration),
             lenientConfiguration
         );
-    }
-
-    @Override
-    public List<ResolutionAwareRepository> getRepositories() {
-        return Cast.uncheckedCast(repositoriesSupplier.get());
     }
 }

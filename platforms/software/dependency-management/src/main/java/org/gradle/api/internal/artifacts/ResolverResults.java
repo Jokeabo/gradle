@@ -22,11 +22,12 @@ import org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.results.
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.projectresult.ResolvedLocalComponentsResult;
 
 /**
- * Immutable representation of the state of dependency resolution. Can represent intermediate resolution states after
- * build dependency resolution, graph resolution, and artifact resolution. Results can have attached failures
- * in cases of partial resolution successes.
+ * Immutable representation of the state of dependency resolution. Can represent the result of resolving build
+ * dependencies or the result of a full dependency graph resolution.
  *
- * <p>This should eventually be merged with {@link org.gradle.api.internal.artifacts.configurations.DefaultConfiguration.ResolveState}</p>
+ * <p> In case of failures, both fatal and partial, exceptions are attached to the {@link VisitedGraphResults}. <p>
+ *
+ * <p>TODO: This should eventually be merged with {@link org.gradle.api.internal.artifacts.configurations.DefaultConfiguration.ResolveState}</p>
  */
 @SuppressWarnings("JavadocReference")
 public interface ResolverResults {
