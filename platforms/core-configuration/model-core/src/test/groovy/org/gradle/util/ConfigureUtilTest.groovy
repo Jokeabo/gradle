@@ -15,8 +15,8 @@
  */
 package org.gradle.util
 
-import org.gradle.util.internal.ConfigureUtil
-import org.gradle.util.internal.ConfigureUtil.IncompleteInputException
+import org.gradle.util.internal.configuration.ConfigureUtil
+import org.gradle.util.internal.configuration.ConfigureUtil.IncompleteInputException
 import spock.lang.Specification
 
 import static org.hamcrest.CoreMatchers.equalTo
