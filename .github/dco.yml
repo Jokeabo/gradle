@@ -1,3 +1,4 @@
 # Disable sign-off checking for members of the Gradle GitHub organization
 require:
-  members: false
+  members: true
+
